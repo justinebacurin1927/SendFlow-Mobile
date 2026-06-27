@@ -9,11 +9,12 @@ import {
   TextInput,
   View,
 } from "react-native";
+import client from "../src/api/client";
 import { useAuthStore } from "../src/stores/auth";
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { login } = useAuthStore();
+  const { login, register } = useAuthStore();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -27,6 +28,43 @@ export default function LoginScreen() {
       router.replace("/(tabs)");
     } catch (e: any) {
       setError(e.response?.data?.message || "Login failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGuestLogin = async () => {
+    setError("");
+    setLoading(true);
+    try {
+      let token: string, user: any;
+      try {
+        const { data } = await client.post("/auth/login", {
+          email: "demo@sendflow.test",
+          password: "password",
+        });
+        token = data.token;
+        user = data.user;
+      } catch {
+        const { data } = await client.post("/auth/register", {
+          name: "Demo User",
+          email: "demo@sendflow.test",
+          password: "password",
+          password_confirmation: "password",
+        });
+        token = data.token;
+        user = data.user;
+      }
+      useAuthStore.setState({
+        token,
+        user,
+        isAuthenticated: true,
+      });
+      router.replace("/(tabs)");
+    } catch (e: any) {
+      const err = e.response?.data;
+      console.log("Guest login error:", JSON.stringify(err || e.message));
+      setError(err?.message || err?.error || e.message || "Guest login failed");
     } finally {
       setLoading(false);
     }
@@ -77,6 +115,16 @@ export default function LoginScreen() {
         ) : (
           <Text className="text-white font-semibold text-base">Sign In</Text>
         )}
+      </Pressable>
+
+      <Pressable
+        className="mt-4 py-3 rounded-lg items-center border border-white/20"
+        onPress={handleGuestLogin}
+        disabled={loading}
+      >
+        <Text className="text-white font-semibold text-base">
+          Try Demo Account
+        </Text>
       </Pressable>
 
       <Pressable

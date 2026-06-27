@@ -2,6 +2,7 @@ export interface User {
   id: number;
   name: string;
   email: string;
+  avatar: string | null;
   created_at: string;
 }
 
@@ -35,6 +36,7 @@ export interface Contact {
 export interface Tag {
   id: number;
   name: string;
+  contacts_count?: number;
   created_at: string;
 }
 
@@ -44,9 +46,12 @@ export interface Campaign {
   type: string;
   status: string;
   send_date: string | null;
+  sent_at: string | null;
   template: MessageTemplate | null;
+  template_id?: number;
   contacts_count: number;
   recipients_count: number;
+  created_by: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -57,6 +62,7 @@ export interface MessageTemplate {
   subject: string;
   body: string;
   created_at: string;
+  updated_at?: string;
 }
 
 export interface DashboardStats {
@@ -74,6 +80,62 @@ export interface DashboardData {
   stats: DashboardStats;
   recent_campaigns: Campaign[];
   tags: Tag[];
+}
+
+export interface Message {
+  id: number;
+  source_id: number | null;
+  sender_name: string | null;
+  sender_email: string | null;
+  subject: string | null;
+  body: string;
+  contact_id: number | null;
+  is_read: boolean;
+  is_trashed: boolean;
+  source_type: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Source {
+  id: number;
+  email: string;
+  created_at: string;
+}
+
+export interface Label {
+  id: number;
+  name: string;
+  created_at: string;
+}
+
+export interface Automation {
+  id: number;
+  name: string;
+  description: string | null;
+  trigger_type: string;
+  trigger_config: Record<string, any> | null;
+  status: string;
+  steps: AutomationStep[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AutomationStep {
+  id: number;
+  automation_id: number;
+  order: number;
+  delay_days: number;
+  action_type: string;
+  action_config: Record<string, any> | null;
+}
+
+export interface Notification {
+  id: string;
+  type: string;
+  data: Record<string, any>;
+  read_at: string | null;
+  created_at: string;
 }
 
 export interface PaginatedResponse<T> {

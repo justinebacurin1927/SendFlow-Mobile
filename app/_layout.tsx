@@ -1,3 +1,4 @@
+import "../global.css";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
@@ -27,6 +28,20 @@ export default function RootLayout() {
         <Stack.Screen name="login" />
         <Stack.Screen name="register" />
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="contact/create" />
+        <Stack.Screen name="contact/[id]" />
+        <Stack.Screen name="campaign/create" />
+        <Stack.Screen name="campaign/[id]/index" />
+        <Stack.Screen name="campaign/[id]/preview" />
+        <Stack.Screen name="templates/index" />
+        <Stack.Screen name="templates/create" />
+        <Stack.Screen name="templates/[id]/edit" />
+        <Stack.Screen name="tags/index" />
+        <Stack.Screen name="inbox/index" />
+        <Stack.Screen name="sources/index" />
+        <Stack.Screen name="labels/index" />
+        <Stack.Screen name="automations/index" />
+        <Stack.Screen name="profile/index" />
       </Stack>
     </>
   );

@@ -1,6 +1,6 @@
 import { create } from "zustand";
-import { authApi } from "../api/auth";
-import type { User } from "../types";
+import client from "../api/client";
+import type { AuthResponse, User } from "../types";
 
 interface AuthState {
   token: string | null;
@@ -13,19 +13,21 @@ interface AuthState {
   loadUser: () => Promise<void>;
 }
 
-export const useAuthStore = create<AuthState>((set, get) => ({
+export const useAuthStore = create<AuthState>((set) => ({
   token: null,
   user: null,
   isLoading: false,
   isAuthenticated: false,
 
   login: async (email, password) => {
-    const { data } = await authApi.login(email, password);
+    const { data } = await client.post<AuthResponse>("/auth/login", { email, password });
     set({ token: data.token, user: data.user, isAuthenticated: true });
   },
 
   register: async (name, email, password) => {
-    const { data } = await authApi.register(name, email, password);
+    const { data } = await client.post<AuthResponse>("/auth/register", {
+      name, email, password, password_confirmation: password,
+    });
     set({ token: data.token, user: data.user, isAuthenticated: true });
   },
 
@@ -36,7 +38,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   loadUser: async () => {
     try {
       set({ isLoading: true });
-      const { data } = await authApi.user();
+      const { data } = await client.get<User>("/auth/user");
       set({ user: data, isAuthenticated: true });
     } catch {
       set({ token: null, user: null, isAuthenticated: false });

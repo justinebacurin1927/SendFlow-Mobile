@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -9,11 +10,13 @@ import {
   View,
 } from "react-native";
 import { campaignsApi } from "../../src/api/campaigns";
+import StatusBadge from "../../src/components/StatusBadge";
 import type { Campaign } from "../../src/types";
 
 const statusFilter = ["all", "draft", "scheduled", "sent"] as const;
 
 export default function CampaignsScreen() {
+  const router = useRouter();
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -25,14 +28,13 @@ export default function CampaignsScreen() {
       const { data } = await campaignsApi.list(params);
       setCampaigns(data.data);
     } catch {
-      // noop
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
   }, [filter]);
 
-  useEffect(() => { fetch(); }, []);
+  useEffect(() => { fetch(); }, [fetch]);
 
   const onRefresh = () => {
     setRefreshing(true);
@@ -50,7 +52,18 @@ export default function CampaignsScreen() {
   return (
     <View className="flex-1 bg-[#1a1a2e]">
       <View className="px-4 pt-14 pb-2">
-        <Text className="text-white text-2xl font-bold mb-4">Campaigns</Text>
+        <View className="flex-row justify-between items-center mb-4">
+          <Text className="text-white text-2xl font-bold">Campaigns</Text>
+          <Pressable
+            className="bg-[#e94560] rounded-lg px-4 py-2"
+            onPress={() => router.push("/campaign/create")}
+          >
+            <View className="flex-row items-center gap-1">
+              <Ionicons name="add" size={18} color="white" />
+              <Text className="text-white font-semibold text-sm">Add</Text>
+            </View>
+          </Pressable>
+        </View>
 
         <View className="flex-row gap-2 mb-4">
           {statusFilter.map((s) => (
@@ -86,7 +99,10 @@ export default function CampaignsScreen() {
           </Text>
         }
         renderItem={({ item }) => (
-          <View className="bg-white/5 rounded-lg px-4 py-3 mb-2">
+          <Pressable
+            className="bg-white/5 rounded-lg px-4 py-3 mb-2"
+            onPress={() => router.push(`/campaign/${item.id}`)}
+          >
             <View className="flex-row justify-between items-center">
               <Text className="text-white font-medium flex-1">{item.name}</Text>
               <StatusBadge status={item.status} />
@@ -107,26 +123,14 @@ export default function CampaignsScreen() {
                 </View>
               )}
             </View>
-          </View>
+            {item.template && (
+              <Text className="text-gray-500 text-xs mt-1">
+                Template: {item.template.name}
+              </Text>
+            )}
+          </Pressable>
         )}
       />
     </View>
-  );
-}
-
-function StatusBadge({ status }: { status: string }) {
-  const colors: Record<string, string> = {
-    sent: "bg-green-500/20 text-green-400",
-    draft: "bg-yellow-500/20 text-yellow-400",
-    scheduled: "bg-blue-500/20 text-blue-400",
-  };
-  return (
-    <Text
-      className={`text-xs font-semibold px-2 py-1 rounded-full ${
-        colors[status] || "bg-gray-500/20 text-gray-400"
-      }`}
-    >
-      {status}
-    </Text>
   );
 }
